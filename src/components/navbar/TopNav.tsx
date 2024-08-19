@@ -35,7 +35,7 @@ export default async function TopNav() {
       
       {/* Center Nav Links */}
       <NavbarContent justify='center'>
-        <NavLink href='/members' label='Matches'/>
+        <NavLink href='/dogs' label='Matches'/>
         <NavLink href='/lists' label='Lists'/>
         <NavLink href='/messages' label='Messages'/>
       </NavbarContent>

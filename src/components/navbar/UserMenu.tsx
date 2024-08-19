@@ -37,7 +37,7 @@ export default function UserMenu({ user }: Props) {
             Signed in as {user?.name}
           </DropdownItem>
         </DropdownSection>
-        <DropdownItem as={Link} href='/members/edit'>
+        <DropdownItem as={Link} href='/dogs/edit'>
           Edit Profile
         </DropdownItem>
         <DropdownItem color='danger' onClick={async () => signOutUser()}>

@@ -1,0 +1,28 @@
+import { getDogPhotosByUserId } from '@/app/actions/dogActions'
+import { CardBody, CardHeader, Divider, Image } from '@nextui-org/react'
+import React from 'react'
+
+export default async function PhotosPage({ params }: { params: { userId: string } }) {
+  const photos = await getDogPhotosByUserId(params.userId);
+  return (
+    <>
+      <CardHeader className='text-2xl font-semibold text-secondary'>Profile</CardHeader>
+      <Divider />
+      <CardBody>
+        <div className='grid grid-cols-5 gap-3'>
+          {photos && photos.map((photo) => (
+            <div key={photo.id}>
+              <Image 
+                width={300}
+                height={300}
+                src={photo.url}
+                alt='image of dog'
+                className='object-cover aspect-square'
+              />
+            </div>
+          ))}
+        </div>
+      </CardBody>
+    </>
+  )
+}

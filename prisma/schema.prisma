@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
@@ -19,6 +19,7 @@ model User {
   sessions      Session[]
   // Optional for WebAuthn support
   Authenticator Authenticator[]
+  dog           Dog?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -77,4 +78,32 @@ model Authenticator {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, credentialID])
+}
+
+model Dog {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  gender      String
+  breed       String
+  hobbies     String[]
+  dateOfBirth DateTime
+  description String
+  city        String
+  country     String
+  image       String?
+  photos      Photo[]
+
+  createdAt DateTime @default(now())
+  updatedAt   DateTime @default(now())
+}
+
+model Photo {
+  id       String  @id @default(cuid())
+  url      String
+  publicId String?
+
+  dogId String
+  dog   Dog @relation(fields: [dogId], references: [id], onDelete: Cascade)
 }

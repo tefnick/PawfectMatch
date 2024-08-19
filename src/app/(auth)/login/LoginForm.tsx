@@ -21,7 +21,7 @@ export default function LoginForm() {
     const result = await signInUser(data);
 
     if (result.status === 'success') {
-      router.push('/members')
+      router.push('/dogs')
       router.refresh();
     } else {
       console.log(result.error) //TODO: use toast message later
