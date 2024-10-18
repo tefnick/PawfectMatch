@@ -18,7 +18,7 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Apply all pending migrations to the database
-        run: npx prisma migrate reset && npx prisma migrate deploy --force
+        run: npx prisma migrate reset --force && npx prisma migrate deploy 
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           DIRECT_URL: ${{ secrets.DIRECT_URL }}
