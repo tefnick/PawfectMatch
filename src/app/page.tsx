@@ -7,30 +7,18 @@ export default async function Home() {
   const session = await auth();
   return (
     <div>
-      <h1 className="text-3xl font-bold">Hello App</h1>
-      <h3 className="text-2xl font-semibold">User session data: </h3>
-      {session ? 
-        ( 
-        <div>
-          <pre>{JSON.stringify(session, null, 2)}</pre>
-          <form action={async () => {
-            "use server";
-            await signOut();
-          }}>
-            <Button
-              type="submit"
-              color="primary" 
-              variant="bordered" 
-              startContent={<FaBeer size={20}/>}>
-                Sign Out
-            </Button>
-          </form>
-        </div> 
-        ) : 
+      <h1 className="text-3xl font-bold">Welcome!</h1>
+      {session ?
         (
-        <div>
-          User not logged in
-        </div>
+          <div>
+            <h2>Welcome back, {session.user?.name}!</h2>
+            <p>See the lists tab to view who you have liked and who has liked you</p>
+          </div>
+        ) :
+        (
+          <div>
+            <p>Sign in to see who you have liked and who has liked you</p>
+          </div>
         )
       }
 
