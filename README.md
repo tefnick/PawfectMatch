@@ -10,3 +10,5 @@ An application for dogs to socialize and meet new pals
 - Prisma ORM
 - PostgresSQL
 - NextUI
+
+more TBD...
