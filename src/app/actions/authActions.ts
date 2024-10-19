@@ -1,6 +1,6 @@
 'use server';
 
-import { signIn, signOut } from "@/auth";
+import { auth, signIn, signOut } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { LoginSchema } from "@/lib/schemas/loginSchema";
 import { registerSchema, RegisterSchema } from "@/lib/schemas/registerSchema";
@@ -116,5 +116,15 @@ export async function getUserById(id: string) {
       id
     }
   })
+}
+
+/**
+ * Retreives the currently logged in user's id from the session
+ * @returns the currently logged in user's id
+ */
+export async function getAuthUserId() {
+  const session = await auth();
+  const loggedInUserId = session?.user?.id;
+  return loggedInUserId;
 }
 
