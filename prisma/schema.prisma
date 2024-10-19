@@ -94,9 +94,11 @@ model Dog {
   country     String
   image       String?
   photos      Photo[]
+  sourceLikes Like[]   @relation("source")
+  targetLikes Like[]   @relation("target")
 
   createdAt DateTime @default(now())
-  updatedAt   DateTime @default(now())
+  updatedAt DateTime @default(now())
 }
 
 model Photo {
@@ -105,5 +107,15 @@ model Photo {
   publicId String?
 
   dogId String
-  dog   Dog @relation(fields: [dogId], references: [id], onDelete: Cascade)
+  dog   Dog    @relation(fields: [dogId], references: [id], onDelete: Cascade)
+}
+
+model Like {
+  sourceUserId String
+  sourceDog    Dog    @relation("source", fields: [sourceUserId], references: [userId], onDelete: Cascade)
+
+  targetUserId String
+  targetDog    Dog    @relation("target", fields: [targetUserId], references: [userId], onDelete: Cascade)
+
+  @@id([sourceUserId, targetUserId])
 }
