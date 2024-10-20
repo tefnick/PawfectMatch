@@ -90,6 +90,7 @@ model Dog {
   hobbies     String[]
   dateOfBirth DateTime
   description String
+  akcRegistered Boolean? @default(false)
   city        String
   country     String
   image       String?
