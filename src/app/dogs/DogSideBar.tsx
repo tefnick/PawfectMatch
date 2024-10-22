@@ -8,18 +8,19 @@ import { usePathname } from 'next/navigation';
 import React from 'react'
 
 type Props = {
-  dog: Dog
+  dog: Dog;
+  navLinks: {name: string, href: string}[]
 }
 
-export default function DogSideBar({ dog }: Props) {
+export default function DogSideBar({ dog, navLinks }: Props) {
   const pathName = usePathname();
   const basePath = `/dogs/${dog.userId}`;
 
-  const navLinks = [
-    {name: 'Profile', href: `${basePath}`},
-    {name: 'Photos', href: `${basePath}/photos`},
-    {name: 'Chat', href: `${basePath}/chat`}
-  ];
+  // const navLinks = [
+  //   {name: 'Profile', href: `${basePath}`},
+  //   {name: 'Photos', href: `${basePath}/photos`},
+  //   {name: 'Chat', href: `${basePath}/chat`}
+  // ];
 
   return (
     <Card 

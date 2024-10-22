@@ -3,18 +3,26 @@ import React, { ReactNode } from 'react'
 import DogSideBar from '../DogSideBar';
 import { notFound } from 'next/navigation';
 import { Card } from '@nextui-org/react';
+import { getAuthUserId } from '@/app/actions/authActions';
 
-export default async function Layout({ children, params }: 
-    {children: ReactNode, params: {userId: string}}) {
-  const dog = await getDogByUserId(params.userId);
-  if (!dog) return notFound();
+export default async function Layout({ children }: 
+    {children: ReactNode }) {
+  
+  const userId = await getAuthUserId();
+  if (!userId) {
+    return notFound();
+  }
 
-  const basePath = `/dogs/${dog.userId}`;
+  const dog = await getDogByUserId(userId);
+  if (!dog) { 
+    return notFound();
+  }
+
+  const basePath = `/dogs/edit`;
 
   const navLinks = [
-    {name: 'Profile', href: `${basePath}`},
-    {name: 'Photos', href: `${basePath}/photos`},
-    {name: 'Chat', href: `${basePath}/chat`}
+    {name: 'Edit Profile', href: `${basePath}`},
+    {name: 'Update Photos', href: `${basePath}/photos`},
   ];
 
   return (
