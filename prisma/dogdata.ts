@@ -107,7 +107,7 @@ export const dogsSeedData = [
         "name": "Luna",
         "created": "2021-08-05",
         "lastActive": "2024-06-19",
-        "description": "I am a small dog with a big personality, and I love cuddles",
+        "description": "I am a big dog with a big personality, and I love cuddles",
         "city": "Seattle",
         "country": "United States",
         "image": "/images/m3.jpeg"

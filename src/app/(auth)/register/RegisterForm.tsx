@@ -2,6 +2,7 @@
 
 import { registerUser } from '@/app/actions/authActions'
 import { registerSchema, RegisterSchema } from '@/lib/schemas/registerSchema'
+import { handleFormServerErrors } from '@/lib/util'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, Card, CardBody, CardHeader, Input } from '@nextui-org/react'
 import { error } from 'console'
@@ -11,7 +12,7 @@ import { GiPadlock } from 'react-icons/gi'
 
 export default function RegisterForm() {
   const { register, handleSubmit, setError, formState: { errors, isValid, isSubmitting } } = useForm<RegisterSchema>({
-    // resolver: zodResolver(registerSchema),
+    resolver: zodResolver(registerSchema),
     mode: 'onTouched'
   })
 
@@ -20,14 +21,7 @@ export default function RegisterForm() {
     if (result.status === 'success')  {
       console.log('User registered successfully') //TODO: add more logic, email verification etc.
     } else {
-      if (Array.isArray(result.error)) { // is errors is an array, it means it's a ZodIssue[]
-        result.error.forEach((error) => {
-          const fieldName = error.path.join('.') as 'name' | 'email' | 'password';
-          setError(fieldName, {message: error.message})
-        })
-      } else { // if it's a string, it's a server error
-        setError('root.serverError', { message: result.error })
-      }
+      handleFormServerErrors(result, setError)
     }
   }
 
