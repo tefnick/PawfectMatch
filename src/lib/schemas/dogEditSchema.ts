@@ -4,7 +4,7 @@ export const dogEditSchema = z.object({
   name: z.string().min(1, {
     message: "Name is required",
   }),
-  hobbies: z.string().array().nullable(), 
+  // hobbies: z.string().array().nullable(), //TODO: implement hobbies later
   description: z.string().min(1, {
     message: "Description is required",
   }),

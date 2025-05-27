@@ -5,9 +5,7 @@ import { notFound } from 'next/navigation';
 import { Card } from '@nextui-org/react';
 import { getAuthUserId } from '@/app/actions/authActions';
 
-export default async function Layout({ children }: 
-    {children: ReactNode }) {
-  
+export default async function Layout({ children }: {children: ReactNode }) {
   const userId = await getAuthUserId();
   if (!userId) {
     return notFound();

@@ -4,6 +4,11 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getAuthUserId } from "./authActions";
 
+/**
+ * Toggle like status for a dog.
+ * @param targetUserId the ID of the user whose dog is being liked or unliked
+ * @param isLiked if the dog is already liked by the current user
+ */
 export async function toggleLikeDog(targetUserId: string, isLiked: boolean) {
   try {
     const loggedInUserId = await getAuthUserId();
@@ -34,6 +39,10 @@ export async function toggleLikeDog(targetUserId: string, isLiked: boolean) {
   }
 }
 
+/**
+ * Fetch the IDs of users that the current user has liked.
+ * @returns an array of user IDs that the current user has liked
+ */
 export async function fetchCurrentUserLikeIds() {
   try {
     const loggedInUserId = await getAuthUserId();

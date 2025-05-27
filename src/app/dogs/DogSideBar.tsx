@@ -1,6 +1,6 @@
 'use client';
 
-import { calculateAge } from '@/lib/util';
+import { calculateAge, transformImageUrl } from '@/lib/util';
 import { Button, Card, CardBody, CardFooter, Divider, Image } from '@nextui-org/react';
 import { Dog } from '@prisma/client'
 import Link from 'next/link';
@@ -8,7 +8,7 @@ import { usePathname } from 'next/navigation';
 import React from 'react'
 
 type Props = {
-  dog: Dog;
+  dog: Dog,
   navLinks: {name: string, href: string}[]
 }
 
@@ -29,7 +29,7 @@ export default function DogSideBar({ dog, navLinks }: Props) {
       <Image 
         height={200}
         width={200}
-        src={dog.image || 'images/user.png'}
+        src={transformImageUrl(dog.image) || 'images/user.png'}
         alt='Dog profile main image'
         className='rounded-full mt-6 aspect-square object-cover'
       />

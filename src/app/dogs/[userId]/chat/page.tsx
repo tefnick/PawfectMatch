@@ -4,7 +4,7 @@ import React from 'react'
 export default function ChatPage() {
   return (
     <>
-      <CardHeader className='text-2xl font-semibold text-secondary'>Profile</CardHeader>
+      <CardHeader className='text-2xl font-semibold text-secondary'>Chat</CardHeader>
       <Divider />
       <CardBody>
         Chatroom goes here.

@@ -6,6 +6,7 @@ import { Card } from '@nextui-org/react';
 
 export default async function Layout({ children, params }: 
     {children: ReactNode, params: {userId: string}}) {
+      
   const dog = await getDogByUserId(params.userId);
   if (!dog) return notFound();
 
