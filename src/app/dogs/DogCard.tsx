@@ -4,7 +4,7 @@ import React from 'react'
 import { Dog } from '@prisma/client'
 import { Card, CardFooter, Image } from '@nextui-org/react'
 import Link from 'next/link'
-import { calculateAge } from '@/lib/util'
+import { calculateAge, transformImageUrl } from '@/lib/util'
 import LikeButton from '@/components/LikeButton'
 
 type Props = {
@@ -15,7 +15,7 @@ type Props = {
 export default function DogCard({ dog, likeIds }: Props) {
   const hasLiked = likeIds.includes(dog.userId);
 
-  const preventLinkAction = (e: React.MouseEvent) => {
+  function preventLinkAction(e: React.MouseEvent) {
     e.preventDefault(); 
     e.stopPropagation(); // prevents the click into the Dog's profile
   }
@@ -30,7 +30,7 @@ export default function DogCard({ dog, likeIds }: Props) {
         isZoomed
         alt={dog.name}
         width={300}
-        src={dog.image || 'images/user.png'}
+        src={transformImageUrl(dog.image) || 'images/user.png'}
         className='aspect-square object-cover'
       />
 

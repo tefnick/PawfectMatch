@@ -24,7 +24,6 @@ export default function LoginForm() {
       router.push('/dogs')
       router.refresh();
     } else {
-      console.log(result.error) //TODO: use toast message later
       toast.error(result.error as string);
     }
   }

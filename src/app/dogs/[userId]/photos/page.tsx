@@ -6,7 +6,7 @@ export default async function PhotosPage({ params }: { params: { userId: string 
   const photos = await getDogPhotosByUserId(params.userId);
   return (
     <>
-      <CardHeader className='text-2xl font-semibold text-secondary'>Profile</CardHeader>
+      <CardHeader className='text-2xl font-semibold text-secondary'>Photos</CardHeader>
       <Divider />
       <CardBody>
         <div className='grid grid-cols-5 gap-3'>
@@ -16,7 +16,7 @@ export default async function PhotosPage({ params }: { params: { userId: string 
                 width={300}
                 height={300}
                 src={photo.url}
-                alt='image of dog'
+                alt='Image of dog'
                 className='object-cover aspect-square'
               />
             </div>

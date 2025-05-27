@@ -1,8 +1,6 @@
-'use client'
+'use client' // Error boundaries must be Client Components
 import { Button, Card, CardBody, CardFooter, CardHeader } from "@nextui-org/react"
 import { BiSolidError } from "react-icons/bi"
-
- // Error boundaries must be Client Components
 
 export default function Error({
   error,

@@ -47,5 +47,8 @@ async function main() {
 }
 
 main()
-  .catch(e => console.log(e))
+  .catch(e => {
+    console.log(e)
+    process.exit(1); // exit with error code if seeding fails
+  })
   .finally(async () => await prisma.$disconnect()); // disconnect from db after seeding data
