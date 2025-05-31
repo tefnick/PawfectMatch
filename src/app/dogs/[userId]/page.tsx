@@ -1,5 +1,6 @@
 import { getDogByUserId } from '@/app/actions/dogActions'
-import { CardBody, CardHeader, Divider } from '@nextui-org/react';
+import CardInnerWrapper from '@/components/CardInnerWrapper';
+import { CardBody, CardHeader } from '@nextui-org/react';
 import { notFound } from 'next/navigation';
 import React from 'react'
 
@@ -12,11 +13,10 @@ export default async function DogDetailedPage({ params }: {params: {userId: stri
 
   return (
     <>
-      <CardHeader className='text-2xl font-semibold text-secondary'>Profile</CardHeader>
-      <Divider />
-      <CardBody>
-        {dog.description}
-      </CardBody>
+      <CardInnerWrapper 
+        header="Profile" 
+        body={<div>{dog.description}</div>}
+      />
     </>
   )
 }
