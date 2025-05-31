@@ -1,10 +1,11 @@
-import { CardHeader, Divider, CardBody } from '@nextui-org/react'
+import { CardHeader, CardBody } from '@nextui-org/react'
 import type { Dog } from '@prisma/client';
 import React from 'react'
 import Editform from './Editform';
 import { getDogByUserId } from '@/app/actions/dogActions';
 import { getAuthUserId } from '@/app/actions/authActions';
 import { notFound } from 'next/navigation';
+import CardInnerWrapper from '@/components/CardInnerWrapper';
 
 export default async function DogEditPage() {
 
@@ -18,11 +19,12 @@ export default async function DogEditPage() {
 
   return (
     <>
-      <CardHeader className='text-2xl font-semibold text-secondary'>Edit Profile</CardHeader>
-      <Divider />
-      <CardBody>
-        <Editform dog={dog} />
-      </CardBody>
+      <CardInnerWrapper 
+        header="Edit Profile"
+        body= {
+          <Editform dog={dog} />
+        }
+      />
     </>
   )
 }
