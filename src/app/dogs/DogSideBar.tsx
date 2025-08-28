@@ -1,5 +1,6 @@
 'use client';
 
+import PresenceDot from '@/components/PresenceDot';
 import { calculateAge, transformImageUrl } from '@/lib/util';
 import { Button, Card, CardBody, CardFooter, Divider, Image } from '@nextui-org/react';
 import { Dog } from '@prisma/client'
@@ -33,9 +34,14 @@ export default function DogSideBar({ dog, navLinks }: Props) {
         alt='Dog profile main image'
         className='rounded-full mt-6 aspect-square object-cover'
       />
-        <CardBody>
+        <CardBody className='overflow-hidden'>
           <div className='flex flex-col items-center'>
-            <div className='text-2xl'>{dog.name}, {calculateAge(dog.dateOfBirth)}</div>
+            <div className='flex'>
+              <div className='text-2xl'>{dog.name}, {calculateAge(dog.dateOfBirth)}</div>
+              <div>
+                <PresenceDot dog={dog}/>
+              </div>
+            </div>
             <div className='text-xl'>{dog.breed}</div>
           </div>
           <div className='text-sm text-neutral-500 text-center mt-2'>
