@@ -1,5 +1,6 @@
 "use client";
 
+import useMessageStore from '@/app/hooks/useMessageStore';
 import { NavbarItem } from '@nextui-org/react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -12,9 +13,17 @@ type NavLinkProps = {
 
 export default function NavLink({ href, label }: NavLinkProps) {
   const pathname = usePathname();
+  const unreadCount = useMessageStore((state) => state.unreadCount);
+  console.log("unread count:", unreadCount)
+
   return (
     <>
-      <NavbarItem isActive={pathname === href} as={Link} href={href}>{label}</NavbarItem>
+      <NavbarItem isActive={pathname === href} as={Link} href={href}>
+        <span>{label}</span>
+        {href === "/messages" && (
+          <span className='ml-1'>({unreadCount})</span> //TODO: figure out NAN error
+        )}
+      </NavbarItem>
     </>
   )
 }

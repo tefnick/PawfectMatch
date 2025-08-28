@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getAuthUserId } from "./authActions";
+import { pusherServer } from "@/lib/pusher";
 
 /**
  * Toggle like status for a dog.
@@ -27,11 +28,27 @@ export async function toggleLikeDog(targetUserId: string, isLiked: boolean) {
           }
         })
     } else { // otherwise if the dog is not liked, create a new like
-      await prisma.like.create({
+      const like = await prisma.like.create({
         data: {
           sourceUserId: loggedInUserId,
           targetUserId: targetUserId
+        },
+        select: {
+          sourceDog: {
+            select: {
+              name: true,
+              image: true,
+              userId: true
+            }
+          }
         }
+      })
+
+      // send realtime push notification to target user
+      await pusherServer.trigger(`private-${targetUserId}`, "like:new", {
+        name: like.sourceDog.name,
+        image: like.sourceDog.image,
+        userId: like.sourceDog.userId
       })
     }
   } catch (error) {

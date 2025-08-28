@@ -16,6 +16,5 @@ export function mapMessageToMessageDTO(message: MessageWithSenderRecipient) {
     recipientImage: message.recipient?.image,
   };
 
-  console.log("Mapped Message DTO:", mappedObject);
   return mappedObject;
 }
