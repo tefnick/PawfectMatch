@@ -36,6 +36,7 @@ type UserFilters = {
   ageRange: number[],
   orderBy: string,
   gender: string[],
+  withPhoto: boolean
 }
 
 type PagingParams = {
@@ -51,4 +52,13 @@ type PagingResult = {
 type PaginatedResponse<T> = {
   items: T[];
   totalCount: number;
+}
+
+type GetDogParams = {
+  ageRange?: string;
+  gender?: string;
+  pageNumber?: string;
+  pageSize?: string;
+  orderBy?: string;
+  withPhoto?: string;
 }

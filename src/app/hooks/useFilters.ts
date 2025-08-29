@@ -1,8 +1,9 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useState, useEffect, use, useTransition } from "react";
+import { useState, useEffect, use, useTransition, ChangeEvent } from "react";
 import { FaFemale, FaMale } from "react-icons/fa";
 import useFilterStore from "./useFilterStore";
 import { Selection } from "@nextui-org/react";
+import usePaginationStore from "./usePaginationStore";
 
 export const useFilters = () => {
   const pathName = usePathname();
@@ -16,8 +17,17 @@ export const useFilters = () => {
   }, [])
 
   const { filters, setFilters} = useFilterStore()
+  const { gender, ageRange, orderBy, withPhoto } = filters;
+  
+  const { pageNumber, pageSize, totalCount } = usePaginationStore(state => state.pagination)
+  const { setPage } = usePaginationStore()
+  
 
-  const { gender, ageRange, orderBy } = filters;
+  useEffect(() => {
+    if (gender || ageRange || orderBy || withPhoto) {
+      setPage(1)
+    }
+  },[ageRange, gender, orderBy, setPage, withPhoto])
 
   useEffect(() => {
     startTransition(() => {
@@ -26,11 +36,14 @@ export const useFilters = () => {
       if (gender) searchParams.set("gender", gender.join(","));
       if (ageRange) searchParams.set("ageRange", ageRange.toString());
       if (orderBy) searchParams.set("orderBy", orderBy);
+      if (pageSize) searchParams.set("pageSize", pageSize.toString())
+      if (pageNumber) searchParams.set("pageNumber", pageNumber.toString())
+      searchParams.set("withPhoto", withPhoto.toString());
 
       router.replace(`${pathName}?${searchParams}`);
     })
     
-  }, [ageRange, orderBy, gender, router, pathName])
+  }, [ageRange, orderBy, gender, router, pathName, pageNumber, pageSize, withPhoto])
 
   const orderByList = [
     {label: 'Last active', value: 'updatedAt'},
@@ -58,6 +71,10 @@ export const useFilters = () => {
 		else setFilters('gender', [...gender, value]);
 	};
 
+  const handleWithPhotoToggle = (e: ChangeEvent<HTMLInputElement>) => {
+    setFilters("withPhoto", e.target.checked)
+  }
+
   console.log('filters', {filters})
 
   return {
@@ -66,8 +83,10 @@ export const useFilters = () => {
     selectAge: handleAgeSelect,
     selectGender: handleGenderSelect,
     selectOrder: handleOrderSelect,
+    selectWithPhoto: handleWithPhotoToggle,
     filters,
     clientLoaded,
-    isPending
+    isPending,
+    totalCount
   }
 }
