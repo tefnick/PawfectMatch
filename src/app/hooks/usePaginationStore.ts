@@ -1,7 +1,5 @@
 import { PagingResult } from "@/types"
 import { pagination } from "@nextui-org/react";
-import { stat } from "fs";
-import { pages } from "next/dist/build/templates/app-page";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 
@@ -27,12 +25,12 @@ const usePaginationStore = create<PaginationState>()(devtools((set) => ({
       totalPages: Math.ceil(totalCount / state.pagination.pageSize)
     }
   })),
-  setPage: (page: number) => set(state => ({pagination: {...state.pagination, pageNumber: page}})),
+  setPage: (page: number) => set(state => ({pagination: { ...state.pagination, pageNumber: page }})),
   setPageSize: (pageSize: number) => set(state => ({pagination: {
     ...state.pagination,
     pageSize: pageSize,
     pageNumber: 1,
-    totalPages: Math.ceil(state.pagination.totalCount / state.pagination.pageSize)
+    totalPages: Math.ceil(state.pagination.totalCount / pageSize)
   }}))
 }), { name: "paginationStoreDemo" }))
 

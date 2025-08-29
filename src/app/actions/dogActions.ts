@@ -2,42 +2,74 @@
 
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
-import { Photo } from "@prisma/client";
-import { UserFilters } from "@/types";
+import { Dog, Photo } from "@prisma/client";
+import { GetDogParams, PaginatedResponse, UserFilters } from "@/types";
 import { addYears } from "date-fns";
 import { getAuthUserId } from "./authActions";
+import { image } from "@nextui-org/react";
 
-export async function getDogs(searchParams: UserFilters) {
-  const session = await auth();
-  if (!session?.user) {
-    return null;
-  }
+// refactored to use offset pagination
+export async function getDogs({
+  ageRange = "0,20",
+  gender = "male,female",
+  orderBy = "updatedAt",
+  pageNumber = "1",
+  pageSize = "12",
+  withPhoto = "true"
+}: GetDogParams): Promise<PaginatedResponse<Dog>> {
+  const userId = await getAuthUserId();
 
-  const ageRange = searchParams?.ageRange?.toString()?.split(",") || [0, 20] // default age range
+  const [minAge, maxAge] = ageRange.split(",")
   const currentDate = new Date();
-  const minDob = addYears(currentDate, -ageRange[1] - 1); // -1 to account if birthday already happened this year
-  const maxDob = addYears(currentDate, -ageRange[0]); // no -1 to be inclusive of the min age
+  const minDob = addYears(currentDate, -maxAge - 1); // -1 to account if birthday already happened this year
+  const maxDob = addYears(currentDate, -minAge); // no -1 to be inclusive of the min age
 
-  const orderBySelector = searchParams?.orderBy || "updatedAt";
+  const selectedGender = gender.split(",")
 
-  const selectedGender = searchParams?.gender?.toString()?.split(",") || ["male", "female"];
+  const page = parseInt(pageNumber)
+  const limit = parseInt(pageSize)
+
+  const skip = (page - 1) * limit;
 
   try {
-    return prisma.dog.findMany({
+    const count = await prisma.dog.count({
       where: {
         AND: [
           { dateOfBirth: { gte: minDob } },
           { dateOfBirth: { lte: maxDob } },
-          { gender: { in: selectedGender } }
+          { gender: { in: selectedGender } },
+          ...(withPhoto === 'true' ? [{ image: { not: null } }] : []),
         ],
         NOT: { 
-          userId: session.user.id
+          userId
+        }
+      }
+    });
+
+    const dogs = await prisma.dog.findMany({
+      where: {
+        AND: [
+          { dateOfBirth: { gte: minDob } },
+          { dateOfBirth: { lte: maxDob } },
+          { gender: { in: selectedGender } },
+          ...(withPhoto === 'true' ? [{ image: { not: null } }] : []),
+        ],
+        NOT: { 
+          userId
         }
       },
-      orderBy: { [String(orderBySelector)]: 'desc' }
+      orderBy: { [orderBy]: 'desc' },
+      skip,
+      take: limit
     });
+
+    return {
+      items: dogs,
+      totalCount: count
+    }
   } catch (error) {
     console.log(error);
+    throw error;
   }
 }
 

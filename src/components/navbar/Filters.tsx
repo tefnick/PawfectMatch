@@ -1,20 +1,23 @@
 "use client";
 
 import { useFilters } from '@/app/hooks/useFilters';
-import { Button, Select, SelectItem, Slider, Spinner } from '@nextui-org/react';
+import { Button, Select, SelectItem, Slider, Spinner, Switch } from '@nextui-org/react';
 import React from 'react'
 
 export default function Filters() {
   const { genderList, orderByList, filters, 
-    selectAge, selectGender, selectOrder, clientLoaded, isPending } = useFilters();
+    selectAge, selectGender, selectOrder, selectWithPhoto,
+      clientLoaded, isPending, totalCount } = useFilters();
   
 
   return (
     <div className='shadow-md py-2'>
       <div className='flex flex-row justify-around items-center'>
         <div className='flex gap-2 items-center'>
-          <div className='text-secondary font-semibold text-xl'>Results: 10</div>
-          {isPending && <Spinner size='sm' color='secondary'/>}
+          <div className='text-secondary font-semibold text-xl'>
+            Results: {isPending ? <Spinner size='sm' color='secondary'/> : totalCount}
+          </div>
+          
         </div>
         
         <div className='flex gap-2 items-center'>
@@ -41,6 +44,15 @@ export default function Filters() {
             defaultValue={filters.ageRange}
             onChangeEnd={(value) => selectAge(value as number[])}
             aria-label='Age range slider'
+          />
+        </div>
+        <div className='flex flex-col items-center'>
+          <p className='text-sm'>With Photo</p>
+          <Switch
+            color='secondary'
+            defaultSelected
+            size='sm'
+            onChange={selectWithPhoto}
           />
         </div>
         <div className='w-1/4'>

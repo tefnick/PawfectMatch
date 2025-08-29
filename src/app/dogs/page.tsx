@@ -1,14 +1,13 @@
-import Link from 'next/link'
 import React from 'react'
 import { getDogs } from '../actions/dogActions'
 import DogCard from './DogCard';
 import { fetchCurrentUserLikeIds } from '../actions/likeActions';
 import PaginationComponent from '@/components/PaginationComponent';
-import { UserFilters } from '@/types';
+import { GetDogParams } from '@/types';
 import EmptyState from '@/components/EmptyState';
 
-export default async function DogsPage({searchParams}:{searchParams: UserFilters}) {
-  const dogs = await getDogs(searchParams);
+export default async function DogsPage({searchParams}:{searchParams: GetDogParams}) {
+  const { items: dogs, totalCount } = await getDogs(searchParams);
   const likeIds = await fetchCurrentUserLikeIds();
 
   return (
@@ -22,7 +21,7 @@ export default async function DogsPage({searchParams}:{searchParams: UserFilters
             <DogCard key={dog.id} dog={dog} likeIds={likeIds}/>
           ))}
         </div>
-        <PaginationComponent />
+        <PaginationComponent totalCount={totalCount}/>
       </>
     )}
     </>
