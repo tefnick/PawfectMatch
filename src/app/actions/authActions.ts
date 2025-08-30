@@ -1,121 +1,181 @@
-'use server';
+"use server";
 
 import { auth, signIn, signOut } from "@/auth";
+import { sendPasswordResetEmail, sendVerificationEmail } from "@/lib/mail";
 import { prisma } from "@/lib/prisma";
 import { LoginSchema } from "@/lib/schemas/loginSchema";
-import { registerSchema, RegisterSchema } from "@/lib/schemas/registerSchema";
+import {
+  combinedRegisteredSchema,
+  ProfileSchema,
+  RegisterSchema,
+} from "@/lib/schemas/registerSchema";
+import { generateToken, getTokenByToken } from "@/lib/tokens";
 import { ActionResult } from "@/types";
-import { User } from "@prisma/client";
-import bcrypt from 'bcryptjs';
+import { TokenType, User } from "@prisma/client";
+import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
-import { redirect } from "next/navigation";
 
-export async function signInUser(data: LoginSchema): Promise<ActionResult<string>> {
+export async function signInUser(
+  data: LoginSchema
+): Promise<ActionResult<string>> {
   try {
-    const result = await signIn('credentials', 
-      {
-        email: data.email, 
-        password: data.password, 
-        redirect: false
-      }
-    );
+    const existingUser = await getUserByEmail(data.email);
 
-    console.log(result)
-    
+    if (!existingUser || !existingUser.email)
+      return { status: "error", error: "Invalid credentials" };
+
+    if (!existingUser.emailVerified) {
+      const token = await generateToken(
+        existingUser.email,
+        TokenType.VERIFICATION
+      );
+
+      // send user email
+      await sendVerificationEmail(token.email, token.token);
+
+      return {
+        status: "error",
+        error: "Please verify your email address before logging in",
+      };
+    }
+
+    const result = await signIn("credentials", {
+      email: data.email,
+      password: data.password,
+      redirect: false,
+    });
+
+    console.log(result);
+
     return {
       status: "success",
-      data: "Successfully logged in!"
-    }
+      data: "Successfully logged in!",
+    };
   } catch (error) {
-    console.log(error)
+    console.log(error);
 
     if (error instanceof AuthError) {
       switch (error.type) {
-        case 'CredentialsSignin': {
+        case "CredentialsSignin": {
           return {
             status: "error",
-            error: "Invalid credentials"
-          }
+            error: "Invalid credentials",
+          };
         }
         default: {
           return {
             status: "error",
-            error: "Something went wrong!"
-          }
+            error: "Something went wrong!",
+          };
         }
       }
     } else {
       return {
         status: "error",
-        error: "Something else went wrong!"
-      } 
+        error: "Something else went wrong!",
+      };
     }
   }
 }
 
-
 export async function signOutUser() {
-  await signOut({redirectTo: '/'});
+  await signOut({ redirectTo: "/" });
 }
 
-
-export async function registerUser(data: RegisterSchema): Promise<ActionResult<User>> {
+export async function registerUser(
+  data: RegisterSchema
+): Promise<ActionResult<User>> {
   try {
-    const validated = registerSchema.safeParse(data);
+    const validated = combinedRegisteredSchema.safeParse(data);
 
     if (!validated.success) {
-      return { 
-        status: "error", 
-        error: validated.error.errors 
-      }
+      return {
+        status: "error",
+        error: validated.error.errors,
+      };
     }
 
-    const { name, email, password } = validated.data;
+    const {
+      name,
+      email,
+      password,
+      gender,
+      breed,
+      dateOfBirth,
+      description,
+      city,
+      country,
+      akcRegistered,
+    } = validated.data;
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const existingUser = await prisma.user.findUnique({
       where: {
         email,
-      }
+      },
     });
 
     if (existingUser) {
-      return { 
-        status: "error", 
-        error: "User already exists"
-      }
+      return {
+        status: "error",
+        error: "User already exists",
+      };
     }
 
-    const user = await prisma.user.create({ 
+    const user = await prisma.user.create({
       data: {
-        name, 
+        name,
         email,
-        passwordHash: hashedPassword
-      }
-    })
+        passwordHash: hashedPassword,
+        profileComplete: true,
+        dog: {
+          create: {
+            name,
+            description,
+            city,
+            country,
+            gender,
+            breed,
+            akcRegistered,
+            dateOfBirth: new Date(dateOfBirth),
+          },
+        },
+      },
+    });
 
-    return {status: "success", data: user }
+    const verificationToken = await generateToken(
+      email,
+      TokenType.VERIFICATION
+    );
+
+    // send them an email
+    await sendVerificationEmail(
+      verificationToken.email,
+      verificationToken.token
+    );
+
+    return { status: "success", data: user };
   } catch (error) {
-    console.log(error)
-    return { status: "error", error: "Something went wrong!"}
+    console.log(error);
+    return { status: "error", error: "Something went wrong!" };
   }
 }
 
 export async function getUserByEmail(email: string) {
   return prisma.user.findUnique({
     where: {
-      email: email
-    }
-  })
+      email: email,
+    },
+  });
 }
 
 export async function getUserById(id: string) {
   return prisma.user.findUnique({
     where: {
-      id
-    }
-  })
+      id,
+    },
+  });
 }
 
 /**
@@ -128,3 +188,151 @@ export async function getAuthUserId() {
   return loggedInUserId;
 }
 
+export async function verifyEmail(
+  token: string
+): Promise<ActionResult<string>> {
+  try {
+    const existingToken = await getTokenByToken(token);
+
+    if (!existingToken) return { status: "error", error: "Invalid token" };
+
+    const hasExpired = new Date() > existingToken.expires;
+
+    if (hasExpired) {
+      return { status: "error", error: "Token has expired" };
+    }
+
+    const existingUser = await getUserByEmail(existingToken.email);
+
+    if (!existingUser) return { status: "error", error: "User not found" };
+
+    await prisma.user.update({
+      where: { id: existingUser.id },
+      data: { emailVerified: new Date() },
+    });
+
+    await prisma.token.delete({ where: { id: existingToken.id } });
+
+    return { status: "success", data: "Success" };
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
+export async function generateResetPasswordEmail(
+  email: string
+): Promise<ActionResult<string>> {
+  try {
+    const existingUser = await getUserByEmail(email);
+
+    if (!existingUser) {
+      return {
+        status: "error",
+        error: "Email not found",
+      };
+    }
+
+    const token = await generateToken(email, TokenType.PASSWORD_RESET);
+
+    await sendPasswordResetEmail(token.email, token.token);
+
+    return {
+      status: "success",
+      data: "Password email have been sent. Please check your email",
+    };
+  } catch (error) {
+    console.log(error);
+    return { status: "error", error: "Something went wrong" };
+  }
+}
+
+export async function resetPassword(
+  password: string,
+  token: string | null
+): Promise<ActionResult<string>> {
+  try {
+    if (!token) return { status: "error", error: "Token not found" };
+
+    const existingToken = await getTokenByToken(token);
+
+    if (!existingToken) return { status: "error", error: "Invalid token" };
+
+    const hasExpired = new Date() > existingToken.expires;
+
+    if (hasExpired) {
+      return { status: "error", error: "Token has expired" };
+    }
+
+    const existingUser = await getUserByEmail(existingToken.email);
+
+    if (!existingUser) return { status: "error", error: "User not found" };
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await prisma.user.update({
+      where: {
+        id: existingUser.id,
+      },
+      data: {
+        passwordHash: hashedPassword,
+      },
+    });
+
+    await prisma.token.delete({
+      where: {
+        id: existingToken.id,
+      },
+    });
+
+    return {
+      status: "success",
+      data: "Password updated successfully, Please try logging in",
+    };
+  } catch (error) {
+    console.error(error);
+    return { status: "error", error: "Something went wrong!" };
+  }
+}
+
+export async function completeSocialLoginProfile(
+  data: ProfileSchema
+): Promise<ActionResult<string>> {
+  const session = await auth();
+
+  if (!session?.user) return { status: "error", error: "User not found" };
+
+  try {
+    const user = await prisma.user.update({
+      where: {
+        id: session.user.id,
+      },
+      data: {
+        profileComplete: true,
+        dog: {
+          create: {
+            name: session.user.name as string,
+            image: session.user.image,
+            gender: data.gender,
+            dateOfBirth: new Date(data.dateOfBirth),
+            description: data.description,
+            city: data.city,
+            country: data.country,
+            breed: data.breed,
+            akcRegistered: data.akcRegistered,
+          },
+        },
+      },
+      select: {
+        accounts: {
+          select: { provider: true },
+        },
+      },
+    });
+
+    return { status: "success", data: user.accounts[0].provider };
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}

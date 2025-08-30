@@ -9,17 +9,18 @@ datasource db {
 }
 
 model User {
-  id            String          @id @default(cuid())
-  name          String?
-  email         String          @unique
-  emailVerified DateTime?
-  image         String?
-  passwordHash  String?
-  accounts      Account[]
-  sessions      Session[]
+  id              String          @id @default(cuid())
+  name            String?
+  email           String          @unique
+  emailVerified   DateTime?
+  image           String?
+  passwordHash    String?
+  profileComplete Boolean         @default(false)
+  accounts        Account[]
+  sessions        Session[]
   // Optional for WebAuthn support
-  Authenticator Authenticator[]
-  dog           Dog?
+  Authenticator   Authenticator[]
+  dog             Dog?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -134,4 +135,19 @@ model Message {
   dateRead         DateTime?
   senderDeleted    Boolean   @default(false)
   recipientDeleted Boolean   @default(false)
+}
+
+model Token {
+  id String @id @default(cuid())
+  email String
+  token String
+  expires DateTime
+  type TokenType
+
+  @@unique([email, token])
+}
+
+enum TokenType {
+  VERIFICATION
+  PASSWORD_RESET
 }
