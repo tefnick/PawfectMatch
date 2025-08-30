@@ -13,6 +13,7 @@ async function seedData() {
         name: dog.name,
         passwordHash: await bcrypt.hash('password', 10),
         image: dog.image,
+        profileComplete: true,
         dog: {
           create: {
             dateOfBirth: new Date(dog.dateOfBirth),

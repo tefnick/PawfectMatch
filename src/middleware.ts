@@ -8,25 +8,36 @@ export default auth((req) => {
 
   const isPublic = publicRoutes.includes(nextUrl.pathname);
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
+  const isProfileComplete = req.auth?.user.profileComplete;
 
-  if (isPublic) { // if it's a public route, allow access regardless of auth status
+  if (isPublic) {
+    // if it's a public route, allow access regardless of auth status
     return NextResponse.next();
   }
 
   if (isAuthRoute) {
     if (isLoggedIn) {
-      return NextResponse.redirect(new URL('/dogs', nextUrl))
+      return NextResponse.redirect(new URL("/dogs", nextUrl));
     }
     return NextResponse.next();
   }
 
   if (!isPublic && !isLoggedIn) {
-    return NextResponse.redirect(new URL('/login', nextUrl))
+    return NextResponse.redirect(new URL("/login", nextUrl));
+  }
+
+  // if profile is not complete, force user to complete profile
+  if (
+    isLoggedIn &&
+    !isProfileComplete &&
+    nextUrl.pathname !== "/complete-profile"
+  ) {
+    return NextResponse.redirect(new URL("/complete-profile", nextUrl));
   }
 
   return NextResponse.next();
-})
+});
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)']
-}
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+};
