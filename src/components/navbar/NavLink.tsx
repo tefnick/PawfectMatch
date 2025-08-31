@@ -19,7 +19,7 @@ export default function NavLink({ href, label }: NavLinkProps) {
     <>
       <NavbarItem isActive={pathname === href} as={Link} href={href}>
         <span>{label}</span>
-        {href === "/messages" && (
+        {href === "/messages" && unreadCount > 0 && (
           <span className="ml-1">({unreadCount})</span> //TODO: figure out NAN error
         )}
       </NavbarItem>

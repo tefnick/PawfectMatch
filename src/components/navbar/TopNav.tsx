@@ -49,9 +49,10 @@ export default async function TopNav() {
 
         {/* Center Nav Links */}
         <NavbarContent justify="center">
-          {links.map((link) => (
-            <NavLink key={link.href} href={link.href} label={link.label} />
-          ))}
+          {session &&
+            links.map((link) => (
+              <NavLink key={link.href} href={link.href} label={link.label} />
+            ))}
         </NavbarContent>
 
         {/* Top Right Auth Links */}
