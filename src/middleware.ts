@@ -9,10 +9,17 @@ export default auth((req) => {
   const isPublic = publicRoutes.includes(nextUrl.pathname);
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
   const isProfileComplete = req.auth?.user.profileComplete;
+  const isAdmin = req.auth?.user.role === "ADMIN";
+  const isAdminRoute = nextUrl.pathname.startsWith("/admin");
 
-  if (isPublic) {
+  if (isPublic || isAdmin) {
     // if it's a public route, allow access regardless of auth status
     return NextResponse.next();
+  }
+
+  // protect non admins from trying to access an admin route
+  if (isAdminRoute && !isAdmin) {
+    return NextResponse.redirect(new URL("/", nextUrl));
   }
 
   if (isAuthRoute) {
@@ -39,5 +46,5 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|images|favicon.ico).*)"],
 };

@@ -1,4 +1,4 @@
-'use server';
+"use server";
 
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
@@ -15,19 +15,19 @@ export async function getDogs({
   orderBy = "updatedAt",
   pageNumber = "1",
   pageSize = "12",
-  withPhoto = "true"
+  withPhoto = "true",
 }: GetDogParams): Promise<PaginatedResponse<Dog>> {
   const userId = await getAuthUserId();
 
-  const [minAge, maxAge] = ageRange.split(",")
+  const [minAge, maxAge] = ageRange.split(",");
   const currentDate = new Date();
   const minDob = addYears(currentDate, -maxAge - 1); // -1 to account if birthday already happened this year
   const maxDob = addYears(currentDate, -minAge); // no -1 to be inclusive of the min age
 
-  const selectedGender = gender.split(",")
+  const selectedGender = gender.split(",");
 
-  const page = parseInt(pageNumber)
-  const limit = parseInt(pageSize)
+  const page = parseInt(pageNumber);
+  const limit = parseInt(pageSize);
 
   const skip = (page - 1) * limit;
 
@@ -38,12 +38,12 @@ export async function getDogs({
           { dateOfBirth: { gte: minDob } },
           { dateOfBirth: { lte: maxDob } },
           { gender: { in: selectedGender } },
-          ...(withPhoto === 'true' ? [{ image: { not: null } }] : []),
+          ...(withPhoto === "true" ? [{ image: { not: null } }] : []),
         ],
-        NOT: { 
-          userId
-        }
-      }
+        NOT: {
+          userId,
+        },
+      },
     });
 
     const dogs = await prisma.dog.findMany({
@@ -52,21 +52,21 @@ export async function getDogs({
           { dateOfBirth: { gte: minDob } },
           { dateOfBirth: { lte: maxDob } },
           { gender: { in: selectedGender } },
-          ...(withPhoto === 'true' ? [{ image: { not: null } }] : []),
+          ...(withPhoto === "true" ? [{ image: { not: null } }] : []),
         ],
-        NOT: { 
-          userId
-        }
+        NOT: {
+          userId,
+        },
       },
-      orderBy: { [orderBy]: 'desc' },
+      orderBy: { [orderBy]: "desc" },
       skip,
-      take: limit
+      take: limit,
     });
 
     return {
       items: dogs,
-      totalCount: count
-    }
+      totalCount: count,
+    };
   } catch (error) {
     console.log(error);
     throw error;
@@ -77,27 +77,31 @@ export async function getDogByUserId(userId: string) {
   try {
     return prisma.dog.findUnique({
       where: {
-        userId
-      }
-    })
+        userId,
+      },
+    });
   } catch (error) {
     console.log(error);
   }
 }
 
 export async function getDogPhotosByUserId(userId: string) {
+  const currentUserId = await getAuthUserId();
   const dog = await prisma.dog.findUnique({
     where: {
-      userId
+      userId,
     },
-    select: { // "includes" would work also but would do a `select * from dog` and also include photos, we only want photos
-      photos: true,
-    }
-  })
+    select: {
+      // "includes" would work also but would do a `select * from dog` and also include photos, we only want photos
+      photos: {
+        where: currentUserId === userId ? {} : { isApproved: true },
+      },
+    },
+  });
 
   if (!dog) return null;
 
-  return dog.photos.map(p => p) as Photo[];
+  return dog.photos as Photo[];
 }
 
 export async function updateLastActive() {
@@ -106,8 +110,8 @@ export async function updateLastActive() {
   try {
     return prisma.dog.update({
       where: { userId },
-      data: { updatedAt: new Date() }
-    })
+      data: { updatedAt: new Date() },
+    });
   } catch (error) {
     console.log(error);
     throw error;

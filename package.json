@@ -12,6 +12,7 @@
     "dev:dbgenerate": "dotenv -e .env.development -- npx prisma generate",
     "dev:dbpush": "dotenv -e .env.development -- npx prisma db push",
     "dev:dbmigrate": "dotenv -e .env.development -- npx prisma migrate dev",
+    "dev:dbreset": "dotenv -e .env.development -- npx prisma migrate reset",
     "dev:dbresetskip": "dotenv -e .env.development -- npx prisma migrate reset --skip-seed"
   },
   "dependencies": {

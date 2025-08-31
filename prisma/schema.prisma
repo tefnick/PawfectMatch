@@ -16,6 +16,7 @@ model User {
   image           String?
   passwordHash    String?
   profileComplete Boolean         @default(false)
+  role            Role            @default(BASIC_USER)
   accounts        Account[]
   sessions        Session[]
   // Optional for WebAuthn support
@@ -106,9 +107,10 @@ model Dog {
 }
 
 model Photo {
-  id       String  @id @default(cuid())
-  url      String
-  publicId String?
+  id         String  @id @default(cuid())
+  url        String
+  publicId   String?
+  isApproved Boolean @default(false)
 
   dogId String
   dog   Dog    @relation(fields: [dogId], references: [id], onDelete: Cascade)
@@ -138,11 +140,11 @@ model Message {
 }
 
 model Token {
-  id String @id @default(cuid())
-  email String
-  token String
+  id      String    @id @default(cuid())
+  email   String
+  token   String
   expires DateTime
-  type TokenType
+  type    TokenType
 
   @@unique([email, token])
 }
@@ -150,4 +152,9 @@ model Token {
 enum TokenType {
   VERIFICATION
   PASSWORD_RESET
+}
+
+enum Role {
+  ADMIN
+  BASIC_USER
 }
