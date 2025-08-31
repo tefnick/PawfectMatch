@@ -1,16 +1,15 @@
 "use client";
 
-import { Tabs, Tab } from '@nextui-org/react';
-import { Dog } from '@prisma/client';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import React, { Key, useTransition } from 'react'
-import DogCard from '../dogs/DogCard';
-import LoadingComponent from '@/components/LoadingComponent';
+import { Tabs, Tab, Spinner } from "@nextui-org/react";
+import { Dog } from "@prisma/client";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import React, { Key, useTransition } from "react";
+import DogCard from "../dogs/DogCard";
 
 type Props = {
   dogs: Dog[];
   likeIds: string[];
-}
+};
 
 export default function ListsTab({ dogs, likeIds }: Props) {
   const searchParams = useSearchParams();
@@ -20,50 +19,47 @@ export default function ListsTab({ dogs, likeIds }: Props) {
   const [isPending, startTransition] = useTransition();
 
   const tabs = [
-    { id: 'source', label: 'Dogs I have Liked' },
-    { id: 'target', label: 'Dogs that Like Me' },
-    { id: 'mutual', label: 'Mutual Likes' },
-  ]
+    { id: "source", label: "Dogs I have Liked" },
+    { id: "target", label: "Dogs that Like Me" },
+    { id: "mutual", label: "Mutual Likes" },
+  ];
 
   // updates url search params when tab is changed
   function handleTabChange(key: Key): void {
     startTransition(() => {
-      const params = new URLSearchParams(searchParams)
-      params.set('type', key.toString());
+      const params = new URLSearchParams(searchParams);
+      params.set("type", key.toString());
       router.replace(`${pathname}?${params.toString()}`);
     });
   }
 
   return (
-    <div className='flex w-full flex-col mt-10 gap-5'>
+    <div className="flex w-full flex-col mt-10 gap-5 relative">
+      {isPending && (
+        <Spinner color={"secondary"} className={"absolute left-[415px]"} />
+      )}
       <Tabs
-        aria-label='Like tabs'
+        aria-label="Like tabs"
         items={tabs}
-        color='secondary'
+        color="secondary"
         onSelectionChange={(key) => handleTabChange(key)}
       >
         {(item) => (
           <Tab key={item.id} title={item.label}>
-            {isPending ? (
-              <LoadingComponent />
-            ) :
-              <>
-                {dogs.length > 0 ? (
-                  <div className='mt-10 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-8'>
-                    {dogs.map((dog) => (
-                      <DogCard key={dog.id} dog={dog} likeIds={likeIds} />
-                    ))}
-                  </div>
-                ) : (
-                  <div>No dogs for this filter</div>
-                )}
-              </>
-            }
-
+            <>
+              {dogs.length > 0 && !isPending ? (
+                <div className="mt-10 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-8">
+                  {dogs.map((dog) => (
+                    <DogCard key={dog.id} dog={dog} likeIds={likeIds} />
+                  ))}
+                </div>
+              ) : (
+                <div>No dogs for this filter</div>
+              )}
+            </>
           </Tab>
         )}
       </Tabs>
     </div>
-
-  )
+  );
 }
