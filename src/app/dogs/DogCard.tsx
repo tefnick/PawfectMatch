@@ -16,11 +16,18 @@ type Props = {
 
 export default function DogCard({ dog, likeIds }: Props) {
   const [hasLiked, setHasLiked] = useState(likeIds.includes(dog.userId));
+  const [loading, setLoading] = useState(false);
 
   async function toggleLike() {
+    setLoading(true);
     try {
       await toggleLikeDog(dog.userId, hasLiked);
-    } catch (error) {}
+      setHasLiked(!hasLiked);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   }
 
   function preventLinkAction(e: React.MouseEvent) {
@@ -41,7 +48,11 @@ export default function DogCard({ dog, likeIds }: Props) {
       {/* Like Button */}
       <div onClick={preventLinkAction}>
         <div className="absolute top-3 right-3 z-50">
-          <LikeButton targetUserId={dog.userId} hasLiked={hasLiked} />
+          <LikeButton
+            loading={loading}
+            toggleLike={toggleLike}
+            hasLiked={hasLiked}
+          />
         </div>
         <div className="absolute top-2 left-3 z-50">
           <PresenceDot dog={dog} />
