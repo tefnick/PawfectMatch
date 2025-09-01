@@ -20,14 +20,14 @@ export default function SocialLogin() {
       >
         <FcGoogle size={30} />
       </Button>
-      <Button
-        size="lg"
-        fullWidth
-        variant={"bordered"}
-        onClick={() => onClick("instagram")}
-      >
-        <FaInstagram size={30} />
-      </Button>
+      {/*<Button*/}
+      {/*  size="lg"*/}
+      {/*  fullWidth*/}
+      {/*  variant={"bordered"}*/}
+      {/*  onClick={() => onClick("instagram")}*/}
+      {/*>*/}
+      {/*  <FaInstagram size={30} />*/}
+      {/*</Button>*/}
     </div>
   );
 }
